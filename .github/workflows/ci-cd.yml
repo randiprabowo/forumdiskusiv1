@@ -12,12 +12,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '18'
         cache: 'npm'
 
     - name: Install dependencies
@@ -26,8 +26,18 @@ jobs:
     - name: Run linting
       run: npm run lint
 
-    - name: Run unit & integration tests
+    - name: Run unit tests
       run: npm test
 
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Build app
+      run: npm run build
+
     - name: Run E2E tests
-      run: npm run ci:test
+      uses: cypress-io/github-action@v6
+      with:
+        start: npm run dev
+        wait-on: 'http://localhost:5173'
+        command: npm run e2e:headless
