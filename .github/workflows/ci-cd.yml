@@ -1,21 +1,100 @@
-name: Continuous Integration
- 
+name: CI/CD Pipeline
+
 on:
-  pull_request:
-    branches:
-      - master
- 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  automation-test-job:
-    runs-on: ubuntu-latest
- 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: npm install and test
-        run: |
-          npm install
-          npm run ci:test
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint
+      run: npm run lint
+
+    - name: Run unit and integration tests
+      run: npm test
+
+    - name: Run E2E tests
+      run: npm run e2e:headless
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run build
+      
+    - name: Build Styleguide
+      run: npm run styleguide:build
+      
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: dist
+        retention-days: 7
+        
+    - name: Upload styleguide artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: styleguide
+        path: styleguide
+        retention-days: 7
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Download build artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+        path: dist
+        
+    - name: Download styleguide artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: styleguide
+        path: styleguide
+        
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: dist
+        branch: gh-pages
+        
+    - name: Deploy Styleguide to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: styleguide
+        branch: gh-pages
+        target-folder: styleguide
