@@ -1,0 +1,18 @@
+{
+  "validUser": {
+    "id": "user-1",
+    "name": "Test User",
+    "email": "testuser@example.com",
+    "password": "password123",
+    "avatar": "https://ui-avatars.com/api/?name=Test+User"
+  },
+  "invalidUser": {
+    "email": "invalid@example.com",
+    "password": "wrongpassword"
+  },
+  "newUser": {
+    "name": "New User",
+    "email": "newuser@example.com",
+    "password": "password123"
+  }
+}

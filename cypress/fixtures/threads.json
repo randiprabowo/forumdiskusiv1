@@ -1,0 +1,85 @@
+{
+  "threads": [
+    {
+      "id": "thread-1",
+      "title": "Thread Title 1",
+      "body": "Thread body 1",
+      "category": "react",
+      "createdAt": "2023-05-29T07:00:00.000Z",
+      "ownerId": "user-1",
+      "upVotesBy": [],
+      "downVotesBy": [],
+      "totalComments": 0,
+      "user": {
+        "id": "user-1",
+        "name": "Test User",
+        "email": "testuser@example.com",
+        "avatar": "https://ui-avatars.com/api/?name=Test+User"
+      }
+    },
+    {
+      "id": "thread-2",
+      "title": "Thread Title 2",
+      "body": "Thread body 2",
+      "category": "redux",
+      "createdAt": "2023-05-29T08:00:00.000Z",
+      "ownerId": "user-2",
+      "upVotesBy": [],
+      "downVotesBy": [],
+      "totalComments": 2,
+      "user": {
+        "id": "user-2",
+        "name": "Another User",
+        "email": "another@example.com",
+        "avatar": "https://ui-avatars.com/api/?name=Another+User"
+      }
+    }
+  ],
+  "threadDetail": {
+    "id": "thread-1",
+    "title": "Thread Title 1",
+    "body": "Thread body with detailed content",
+    "category": "react",
+    "createdAt": "2023-05-29T07:00:00.000Z",
+    "ownerId": "user-2",
+    "upVotesBy": [],
+    "downVotesBy": [],
+    "comments": [
+      {
+        "id": "comment-1",
+        "content": "Komentar pertama",
+        "createdAt": "2023-05-29T08:00:00.000Z",
+        "owner": {
+          "id": "user-3",
+          "name": "Comment User",
+          "avatar": "https://ui-avatars.com/api/?name=Comment+User"
+        },
+        "upVotesBy": [],
+        "downVotesBy": []
+      },
+      {
+        "id": "comment-2",
+        "content": "Komentar kedua",
+        "createdAt": "2023-05-29T09:00:00.000Z",
+        "owner": {
+          "id": "user-4",
+          "name": "Second User",
+          "avatar": "https://ui-avatars.com/api/?name=Second+User"
+        },
+        "upVotesBy": [],
+        "downVotesBy": []
+      }
+    ],
+    "user": {
+      "id": "user-2",
+      "name": "Thread Owner",
+      "email": "owner@example.com",
+      "avatar": "https://ui-avatars.com/api/?name=Thread+Owner"
+    }
+  },
+  "newThread": {
+    "title": "New Thread Title",
+    "body": "New thread body",
+    "category": "react"
+  }
+}
