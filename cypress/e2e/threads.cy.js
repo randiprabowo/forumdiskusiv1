@@ -23,6 +23,9 @@ describe('Threads Flow', () => {
   it('should filter threads by category', () => {
     // Klik filter kategori 'react'
     cy.get('[data-testid="category-filter"]').contains('react').click();
+    
+    // Tunggu proses filtering selesai
+    cy.wait(500); // Give time for the filter to be applied
 
     // Memverifikasi hanya thread dengan kategori 'react' yang ditampilkan
     cy.get('[data-testid="thread-item"]').should('have.length', 1);

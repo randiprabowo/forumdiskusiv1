@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "cypress open",
-    "ci:test": "vitest run && start-server-and-test dev http-get://0.0.0.0:5173 e2e",
+    "ci:test": "vitest run && start-server-and-test 'vite --host' http://localhost:5173 'cypress run'",
     "e2e:headless": "cypress run",
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build"
