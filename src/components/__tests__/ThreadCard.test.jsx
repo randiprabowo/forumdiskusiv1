@@ -1,12 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
 import ThreadCard from '../ThreadCard';
 
 // Mock all dependencies
 vi.mock('@reduxjs/toolkit', () => ({
-  createAsyncThunk: (type, payloadCreator) => {
+  createAsyncThunk: (type) => {
     const actionCreator = (...args) => ({
       type,
       payload: args[0],

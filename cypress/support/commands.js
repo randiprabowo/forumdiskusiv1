@@ -125,7 +125,7 @@ Cypress.Commands.add('setupLoggedInUser', (userType = 'validUser') => {
 
 // Command untuk setup intercept threads
 Cypress.Commands.add('interceptThreads', () => {
-  cy.fixture('threads.json').then((data) => {
+  cy.fixture('threads.json').then(() => {
     cy.intercept('GET', '**/v1/threads', {
       statusCode: 200,
       body: {
@@ -225,10 +225,10 @@ Cypress.Commands.add('interceptThreadDetail', () => {
 
 // Command untuk setup intercept leaderboards
 Cypress.Commands.add('interceptLeaderboards', () => {
-  cy.fixture('leaderboards.json').then((data) => {
+  cy.fixture('leaderboards.json').then((leaderboardData) => {
     cy.intercept('GET', '**/v1/leaderboards', {
       statusCode: 200,
-      body: data.leaderboards,
+      body: leaderboardData.leaderboards,
     }).as('getLeaderboards');
   });
 });

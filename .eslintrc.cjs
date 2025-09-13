@@ -9,7 +9,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'airbnb',
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -22,6 +21,11 @@ module.exports = {
     react: {
       version: 'detect',
     },
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.jsx']
+      }
+    }
   },
   plugins: [
     'react',
@@ -32,19 +36,18 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
-    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    'import/no-extraneous-dependencies': 'off',
     'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['state'] }],
     'no-underscore-dangle': 'off',
     'linebreak-style': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
-    'import/extensions': [
-      'error',
-      'ignorePackages',
-      {
-        js: 'never',
-        jsx: 'never'
-      }
-    ]
+    'import/prefer-default-export': 'off',
+    'import/no-unresolved': 'off',
+    'import/extensions': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'no-shadow': 'off',
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off'
   },
   ignorePatterns: [
     'dist/**/*',

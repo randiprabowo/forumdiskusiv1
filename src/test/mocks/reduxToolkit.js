@@ -1,5 +1,5 @@
 // Mock createAsyncThunk
-export const createAsyncThunk = (type, payloadCreator) => {
+export const createAsyncThunk = (type) => {
   const actionCreator = (...args) => ({
     type,
     payload: args[0],
@@ -11,7 +11,7 @@ export const createAsyncThunk = (type, payloadCreator) => {
 };
 
 // Mock createSlice
-export const createSlice = ({ name, initialState, reducers, extraReducers }) => {
+export const createSlice = ({ name, initialState, reducers }) => {
   const actionCreators = {};
   Object.keys(reducers).forEach((key) => {
     actionCreators[key] = (payload) => ({
@@ -21,7 +21,7 @@ export const createSlice = ({ name, initialState, reducers, extraReducers }) => 
   });
   return {
     name,
-    reducer: (state = initialState, action) => state,
+    reducer: (state = initialState) => state,
     actions: actionCreators,
   };
 };

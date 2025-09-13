@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import Navbar from '../Navbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../features/authSlice';

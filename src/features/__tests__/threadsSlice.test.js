@@ -3,7 +3,6 @@ import threadsReducer, {
   filterThreadsByCategory,
   clearThreadsError,
   fetchThreads,
-  fetchThreadDetail,
   voteThread,
 } from '../threadsSlice';
 

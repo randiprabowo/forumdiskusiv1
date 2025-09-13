@@ -3,7 +3,6 @@ import authReducer, {
   clearError,
   setUser,
   setToken,
-  registerUser,
   loginUser,
   logoutUser,
 } from '../authSlice';

@@ -43,6 +43,7 @@ const useForm = (initialValues, onSubmit, validate) => {
       // Reset form after successful submission if needed
       // setValues(initialValues);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
