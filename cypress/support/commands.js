@@ -244,8 +244,8 @@ Cypress.Commands.add('interceptLeaderboards', () => {
 
 // Command untuk menunggu aplikasi siap dengan timeout lebih lama untuk CI
 Cypress.Commands.add('waitForAppReady', () => {
-  // Wait for the app to be fully loaded
-  cy.window().should('have.property', 'React');
+  // Wait for the app to be fully loaded by checking for React root
+  cy.get('#root', { timeout: 20000 }).should('exist');
   
   // Wait for any initial API calls to complete
   cy.wait(2000);
