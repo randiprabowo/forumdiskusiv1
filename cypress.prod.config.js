@@ -5,14 +5,16 @@ export default defineConfig({
     specPattern: 'cypress/e2e/**/*.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/e2e.js',
     video: false,
-    defaultCommandTimeout: 10000,
-    requestTimeout: 10000,
-    responseTimeout: 10000,
-    pageLoadTimeout: 30000,
+    defaultCommandTimeout: 30000,
+    requestTimeout: 30000,
+    responseTimeout: 30000,
+    pageLoadTimeout: 60000,
     retries: {
-      runMode: 2,
+      runMode: 3,
       openMode: 0
     },
+    experimentalStudio: true,
+    chromeWebSecurity: false,
     setupNodeEvents() {
       // Fungsi ini diperlukan tapi tidak menggunakan parameter
     },

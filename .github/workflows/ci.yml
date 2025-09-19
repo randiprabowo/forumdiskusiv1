@@ -12,14 +12,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [18.x]
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -30,10 +30,20 @@ jobs:
     - name: Run linting
       run: npm run lint
 
-    - name: Run tests
-      run: npm run ci:test
+    - name: Run unit tests
+      run: npm test
       env:
         CI: true
+
+    - name: Run E2E tests
+      uses: cypress-io/github-action@v6
+      with:
+        build: npm run build
+        start: npm run dev
+        wait-on: 'http://localhost:5173'
+        browser: electron
+        config-file: cypress.prod.config.js
+        record: false
 
   deploy:
     needs: test
@@ -77,14 +87,16 @@ jobs:
         VERCEL_URL: ${{ secrets.VERCEL_DEPLOYMENT_URL }}
         
     - name: Run Production E2E Tests
-      run: |
-        npm install start-server-and-test
-        npm run build
-        npm run preview &
-        sleep 10
-        CYPRESS_VERIFY_TIMEOUT=100000 npm run e2e:headless
+      uses: cypress-io/github-action@v6
+      with:
+        config-file: cypress.prod.config.js
+        record: false
+        start: npm run preview
+        wait-on: 'http://localhost:4173'
+        browser: electron
       env:
         CYPRESS_BASE_URL: ${{ secrets.VERCEL_DEPLOYMENT_URL }}
+        CYPRESS_VERIFY_TIMEOUT: 100000
         CYPRESS_TIMEOUT: 10000
         CYPRESS_REQUEST_TIMEOUT: 10000
         CYPRESS_RESPONSE_TIMEOUT: 10000
