@@ -51,11 +51,7 @@ describe('Thread Detail Flow', () => {
   });
 
   it('should upvote thread when upvote button is clicked', () => {
-    // Setup intercept for initial thread detail load
-    cy.interceptThreadDetail();
-    
-    // Wait for thread detail to load and verify initial state
-    cy.wait('@getThreadDetail');
+    // Pastikan detail thread telah dimuat dari beforeEach dan verifikasi state awal
     cy.get('[data-testid="thread-title"]').should('be.visible');
     cy.get('[data-testid="upvote-button"]').should('be.visible');
     cy.get('[data-testid="upvote-count"]').should('be.visible').and('contain', '0');
@@ -77,31 +73,7 @@ describe('Thread Detail Flow', () => {
       }
     }).as('upvoteThread');
 
-    // Update thread detail response after vote
-    cy.intercept('GET', '**/v1/threads/thread-1', {
-      statusCode: 200,
-      body: {
-        status: 'success',
-        message: 'success',
-        data: {
-          thread: {
-            id: 'thread-1',
-            title: 'Thread Title 1',
-            body: 'Thread body with detailed content',
-            category: 'react',
-            createdAt: '2023-05-30T10:00:00.000Z',
-            owner: {
-              id: 'user-1',
-              name: 'Test User',
-              avatar: 'https://ui-avatars.com/api/?name=Test+User'
-            },
-            upVotesBy: ['user-1'],
-            downVotesBy: [],
-            comments: []
-          }
-        }
-      }
-    }).as('getThreadDetailAfterVote');
+    // Tidak ada refetch detail thread setelah vote (optimistic update)
 
     // Klik tombol upvote dengan retry
     cy.get('[data-testid="upvote-button"]')
@@ -120,8 +92,7 @@ describe('Thread Detail Flow', () => {
   });
 
   it('should downvote thread when downvote button is clicked', () => {
-    // Wait for thread detail to load and verify initial state
-    cy.wait('@getThreadDetail');
+    // Pastikan detail thread telah dimuat dari beforeEach dan verifikasi state awal
     cy.get('[data-testid="downvote-button"]').should('be.visible');
     cy.get('[data-testid="downvote-count"]').should('be.visible').and('contain', '0');
     
@@ -142,31 +113,7 @@ describe('Thread Detail Flow', () => {
       }
     }).as('downvoteThread');
 
-    // Update thread detail response after vote
-    cy.intercept('GET', '**/v1/threads/thread-1', {
-      statusCode: 200,
-      body: {
-        status: 'success',
-        message: 'success',
-        data: {
-          thread: {
-            id: 'thread-1',
-            title: 'Thread Title 1',
-            body: 'Thread body with detailed content',
-            category: 'react',
-            createdAt: '2023-05-30T10:00:00.000Z',
-            owner: {
-              id: 'user-1',
-              name: 'Test User',
-              avatar: 'https://ui-avatars.com/api/?name=Test+User'
-            },
-            upVotesBy: [],
-            downVotesBy: ['user-1'],
-            comments: []
-          }
-        }
-      }
-    }).as('getThreadDetailAfterVote');
+    // Tidak ada refetch detail thread setelah vote (optimistic update)
 
     // Klik tombol downvote dengan retry
     cy.get('[data-testid="downvote-button"]')
@@ -211,8 +158,7 @@ describe('Thread Detail Flow', () => {
       },
     }).as('addComment');
 
-    // Setup thread detail refresh after comment
-    cy.interceptThreadDetail();
+    // Tidak perlu refetch detail thread setelah menambahkan komentar (optimistic update)
 
     // Verifikasi form komentar visible dan interactable
     cy.get('[data-testid="comment-input"]')
@@ -227,7 +173,6 @@ describe('Thread Detail Flow', () => {
 
     // Memverifikasi API calls
     cy.wait('@addComment');
-    cy.wait('@getThreadDetail');
 
     // Memverifikasi komentar baru ditampilkan dengan retry dan timeout
     cy.get('[data-testid="comment-item"]', { timeout: 10000 })

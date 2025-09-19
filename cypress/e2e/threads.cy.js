@@ -21,8 +21,7 @@ describe('Threads Flow', () => {
   });
 
   it('should filter threads by category', () => {
-    // Wait for initial threads to load
-    cy.wait('@getThreads');
+    // Threads already loaded in beforeEach
     
     // Verify initial thread list is visible
     cy.get('[data-testid="thread-item"]').should('have.length', 2);
@@ -43,8 +42,7 @@ describe('Threads Flow', () => {
   });
 
   it('should navigate to thread detail page when thread is clicked', () => {
-    // Wait for initial threads to load
-    cy.wait('@getThreads');
+    // Threads already loaded in beforeEach
     
     // Setup intercept untuk thread detail
     cy.interceptThreadDetail();
