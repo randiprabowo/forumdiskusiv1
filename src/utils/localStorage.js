@@ -37,6 +37,7 @@ export const getToken = () => {
     
     return token;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error getting token from localStorage:', error);
     return null;
   }
@@ -75,6 +76,7 @@ export const getUser = () => {
     
     return JSON.parse(user);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error parsing user data from localStorage:', error);
     return null;
   }
