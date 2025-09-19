@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaRegThumbsUp, FaThumbsUp, FaRegThumbsDown, FaThumbsDown, FaRegComment } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
@@ -9,6 +9,7 @@ import { addOptimisticUpdate, removeOptimisticUpdate } from '../features/votesSl
 
 function ThreadCard({ thread }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { optimisticUpdates } = useSelector((state) => state.votes);
 
@@ -91,15 +92,15 @@ function ThreadCard({ thread }) {
 
       <Link to={`/threads/${id}`} className="block group">
         <h2 className="text-xl font-bold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">{title}</h2>
+        
+        {category && (
+          <span className="inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1 rounded-full mb-3 shadow-sm">
+            #{category}
+          </span>
+        )}
+
+        <p className="text-gray-700 mb-4 leading-relaxed">{bodyPreview}</p>
       </Link>
-
-      {category && (
-        <span className="inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1 rounded-full mb-3 shadow-sm">
-          #{category}
-        </span>
-      )}
-
-      <p className="text-gray-700 mb-4 leading-relaxed">{bodyPreview}</p>
 
       <div className="flex flex-wrap items-center text-gray-600 pt-2 border-t border-gray-100">
         <button
@@ -122,10 +123,14 @@ function ThreadCard({ thread }) {
           {displayDownVoted ? <FaThumbsDown className="mr-1" /> : <FaRegThumbsDown className="mr-1" />}
           <span data-testid="downvote-count">{downVotesBy.length}</span>
         </button>
-        <Link to={`/threads/${id}`} className="flex items-center hover:text-blue-600">
+        <button
+          type="button"
+          onClick={() => navigate(`/threads/${id}`)}
+          className="flex items-center hover:text-blue-600 cursor-pointer"
+        >
           <FaRegComment className="mr-1" />
           <span>{totalComments}</span>
-        </Link>
+        </button>
       </div>
     </div>
   );

@@ -79,9 +79,7 @@ function ThreadsPage() {
       <div className="space-y-6">
         {filteredThreads.map((thread) => (
           <div key={thread.id} data-testid="thread-item">
-            <Link to={`/threads/${thread.id}`} className="block">
-              <ThreadCard thread={thread} />
-            </Link>
+            <ThreadCard thread={thread} />
           </div>
         ))}
       </div>

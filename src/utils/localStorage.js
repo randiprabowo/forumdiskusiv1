@@ -26,7 +26,21 @@ export const saveToken = (token) => {
  * Get auth token from local storage
  * @returns {string|null} JWT token or null if not found
  */
-export const getToken = () => localStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY_COMPAT);
+export const getToken = () => {
+  try {
+    const token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem(TOKEN_KEY_COMPAT);
+    
+    // Check for null, undefined, or string representations of null/undefined
+    if (!token || token === 'undefined' || token === 'null') {
+      return null;
+    }
+    
+    return token;
+  } catch (error) {
+    console.error('Error getting token from localStorage:', error);
+    return null;
+  }
+};
 
 /**
  * Remove auth token from local storage
@@ -51,8 +65,19 @@ export const saveUser = (user) => {
  * @returns {Object|null} User object or null if not found
  */
 export const getUser = () => {
-  const user = localStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY_COMPAT);
-  return user ? JSON.parse(user) : null;
+  try {
+    const user = localStorage.getItem(USER_KEY) || localStorage.getItem(USER_KEY_COMPAT);
+    
+    // Check for null, undefined, or string representations of null/undefined
+    if (!user || user === 'undefined' || user === 'null') {
+      return null;
+    }
+    
+    return JSON.parse(user);
+  } catch (error) {
+    console.error('Error parsing user data from localStorage:', error);
+    return null;
+  }
 };
 
 /**
