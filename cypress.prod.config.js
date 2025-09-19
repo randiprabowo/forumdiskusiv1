@@ -21,9 +21,15 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'electron') {
-          launchOptions.preferences.webPreferences = {
-            ...launchOptions.preferences.webPreferences,
-            contextIsolation: false
+          return {
+            ...launchOptions,
+            preferences: {
+              ...launchOptions.preferences,
+              webPreferences: {
+                ...launchOptions.preferences.webPreferences,
+                contextIsolation: false
+              }
+            }
           };
         }
         return launchOptions;
