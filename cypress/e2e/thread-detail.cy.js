@@ -26,8 +26,12 @@ describe('Thread Detail Flow', () => {
   });
 
   it('should upvote thread when upvote button is clicked', () => {
+    // Setup intercept for initial thread detail load
+    cy.interceptThreadDetail();
+    
     // Wait for thread detail to load and verify initial state
     cy.wait('@getThreadDetail');
+    cy.get('[data-testid="thread-title"]').should('be.visible');
     cy.get('[data-testid="upvote-button"]').should('be.visible');
     cy.get('[data-testid="upvote-count"]').should('be.visible').and('contain', '0');
     
