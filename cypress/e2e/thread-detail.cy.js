@@ -8,12 +8,12 @@ describe('Thread Detail Flow', () => {
     // Setup intercept untuk thread detail sebelum visit
     cy.interceptThreadDetail();
     
-    // Kunjungi halaman detail thread dengan retry jika gagal
-    cy.visit('/threads/thread-1', { timeout: 10000 });
+    // Kunjungi halaman detail thread dengan timeout lebih lama untuk CI
+    cy.visit('/threads/thread-1', { timeout: 15000 });
     
-    // Tunggu thread detail dan pastikan loading selesai
-    cy.wait('@getThreadDetail');
-    cy.waitForLoading();
+    // Tunggu thread detail dan pastikan loading selesai dengan timeout lebih lama
+    cy.wait('@getThreadDetail', { timeout: 15000 });
+    cy.waitForAppReady();
   });
 
   it('should display thread detail and comments', () => {
@@ -22,21 +22,21 @@ describe('Thread Detail Flow', () => {
       .should('exist')
       .and('be.visible');
 
-    // Memverifikasi detail thread ditampilkan dengan retry
-    cy.get('[data-testid="thread-title"]')
+    // Memverifikasi detail thread ditampilkan dengan retry dan timeout lebih lama untuk CI
+    cy.get('[data-testid="thread-title"]', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Thread Title 1');
     
-    cy.get('[data-testid="thread-body"]')
+    cy.get('[data-testid="thread-body"]', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'Thread body with detailed content');
     
-    cy.get('[data-testid="thread-category"]')
+    cy.get('[data-testid="thread-category"]', { timeout: 15000 })
       .should('be.visible')
       .and('contain', 'react');
     
-    // Memverifikasi komentar ditampilkan dengan retry
-    cy.get('[data-testid="comment-item"]', { timeout: 10000 })
+    // Memverifikasi komentar ditampilkan dengan retry dan timeout lebih lama untuk CI
+    cy.get('[data-testid="comment-item"]', { timeout: 15000 })
       .should('have.length', 2)
       .should('be.visible');
 

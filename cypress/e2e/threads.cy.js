@@ -49,27 +49,27 @@ describe('Threads Flow', () => {
     // Setup intercept untuk thread detail
     cy.interceptThreadDetail();
     
-    // Wait for thread items to be visible and interactable
-    cy.get('[data-testid="thread-item"]')
+    // Wait for thread items to be visible and interactable with longer timeout for CI
+    cy.get('[data-testid="thread-item"]', { timeout: 15000 })
       .should('be.visible')
       .first()
       .should('be.visible')
       .and('not.be.disabled')
       .click();
 
-    // Memverifikasi redirect ke halaman detail thread
-    cy.url().should('include', '/threads/thread-1');
+    // Memverifikasi redirect ke halaman detail thread with longer timeout
+    cy.url({ timeout: 15000 }).should('include', '/threads/thread-1');
 
-    // Menunggu detail thread dimuat dengan timeout yang lebih lama
-    cy.wait('@getThreadDetail', { timeout: 10000 });
+    // Menunggu detail thread dimuat dengan timeout yang lebih lama untuk CI
+    cy.wait('@getThreadDetail', { timeout: 15000 });
 
-    // Memverifikasi komponen thread detail ditampilkan dengan retry assertions
-    cy.get('[data-testid="thread-title"]', { timeout: 10000 })
+    // Memverifikasi komponen thread detail ditampilkan dengan retry assertions dan timeout lebih lama
+    cy.get('[data-testid="thread-title"]', { timeout: 15000 })
       .should('exist')
       .and('be.visible')
       .and('contain', 'Thread Title 1');
       
-    cy.get('[data-testid="thread-body"]', { timeout: 10000 })
+    cy.get('[data-testid="thread-body"]', { timeout: 15000 })
       .should('exist')
       .and('be.visible')
       .and('contain', 'Thread body with detailed content');

@@ -18,6 +18,9 @@ export default defineConfig({
     },
     experimentalStudio: true,
     chromeWebSecurity: false,
+    // Increase timeouts for CI environment
+    taskTimeout: 60000,
+    execTimeout: 60000,
     setupNodeEvents(on, config) {
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'electron') {

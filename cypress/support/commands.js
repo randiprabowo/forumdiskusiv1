@@ -242,9 +242,25 @@ Cypress.Commands.add('interceptLeaderboards', () => {
   });
 });
 
-// Command untuk menunggu loading selesai
+// Command untuk menunggu aplikasi siap dengan timeout lebih lama untuk CI
+Cypress.Commands.add('waitForAppReady', () => {
+  // Wait for the app to be fully loaded
+  cy.window().should('have.property', 'React');
+  
+  // Wait for any initial API calls to complete
+  cy.wait(2000);
+  
+  // Ensure no loading states are active
+  cy.get('[data-testid="loading"]', { timeout: 20000 }).should('not.exist');
+});
+
+// Command untuk menunggu loading selesai dengan timeout lebih lama untuk CI
 Cypress.Commands.add('waitForLoading', () => {
-  cy.get('[data-testid="loading"]').should('not.exist');
+  // Wait for loading to disappear with longer timeout for CI
+  cy.get('[data-testid="loading"]', { timeout: 20000 }).should('not.exist');
+  
+  // Additional wait to ensure page is fully loaded
+  cy.wait(1000);
 });
 
 // Command untuk memverifikasi elemen yang visible
