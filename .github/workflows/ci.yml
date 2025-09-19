@@ -35,15 +35,25 @@ jobs:
       env:
         CI: true
 
+    - name: Install dependencies for E2E
+      run: |
+        npm ci
+        npm run build
+
     - name: Run E2E tests
       uses: cypress-io/github-action@v6
       with:
-        build: npm run build
-        start: npm run dev
-        wait-on: 'http://localhost:5173'
+        start: npm run preview
+        wait-on: 'http://localhost:4173'
+        wait-on-timeout: 120
         browser: electron
         config-file: cypress.prod.config.js
         record: false
+      env:
+        NODE_ENV: test
+        CYPRESS_BASE_URL: http://localhost:4173
+        CYPRESS_VERIFY_TIMEOUT: 100000
+        CYPRESS_TIMEOUT: 30000
 
   deploy:
     needs: test

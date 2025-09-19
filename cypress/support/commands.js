@@ -232,3 +232,35 @@ Cypress.Commands.add('interceptLeaderboards', () => {
     }).as('getLeaderboards');
   });
 });
+
+// Command untuk menunggu loading selesai
+Cypress.Commands.add('waitForLoading', () => {
+  cy.get('[data-testid="loading"]').should('not.exist');
+});
+
+// Command untuk memverifikasi elemen yang visible
+Cypress.Commands.add('shouldBeVisible', { prevSubject: 'element' }, (subject) => {
+  cy.wrap(subject).should('be.visible');
+});
+
+// Command untuk retry action jika gagal
+Cypress.Commands.add('retryAction', (action, options = {}) => {
+  const { maxAttempts = 3, delay = 1000 } = options;
+  let attempts = 0;
+
+  const attempt = () => {
+    attempts++;
+    try {
+      action();
+    } catch (error) {
+      if (attempts < maxAttempts) {
+        cy.wait(delay);
+        attempt();
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  attempt();
+});
