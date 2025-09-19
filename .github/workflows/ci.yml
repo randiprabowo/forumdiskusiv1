@@ -66,7 +66,7 @@ jobs:
         vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
     - name: Wait for deployment
-      run: sleep 30
+      run: sleep 45
       
     - name: Test Production Deployment
       run: |
@@ -78,6 +78,13 @@ jobs:
         
     - name: Run Production E2E Tests
       run: |
-        npm run e2e:headless
+        npm install start-server-and-test
+        npm run build
+        npm run preview &
+        sleep 10
+        CYPRESS_VERIFY_TIMEOUT=100000 npm run e2e:headless
       env:
         CYPRESS_BASE_URL: ${{ secrets.VERCEL_DEPLOYMENT_URL }}
+        CYPRESS_TIMEOUT: 10000
+        CYPRESS_REQUEST_TIMEOUT: 10000
+        CYPRESS_RESPONSE_TIMEOUT: 10000
