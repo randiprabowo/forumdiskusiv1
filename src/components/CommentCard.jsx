@@ -15,21 +15,21 @@ function CommentCard({ comment, threadId }) {
     id, content, createdAt, owner, upVotesBy, downVotesBy,
   } = comment;
 
-  const isUpVoted = user ? upVotesBy.includes(user.id) : false;
-  const isDownVoted = user ? downVotesBy.includes(user.id) : false;
+  const isUpVoted = user && upVotesBy ? upVotesBy.includes(user.id) : false;
+  const isDownVoted = user && downVotesBy ? downVotesBy.includes(user.id) : false;
 
   // Check for optimistic updates
   const optimisticUpdate = optimisticUpdates.find(
-    (update) => update.id === id && update.type === 'comment',
+    (update) => update.id === (id || '') && update.type === 'comment',
   );
 
   const displayUpVoted = optimisticUpdate ? optimisticUpdate.isUpVoted : isUpVoted;
   const displayDownVoted = optimisticUpdate ? optimisticUpdate.isDownVoted : isDownVoted;
   const displayedUpvoteCount = (displayUpVoted && !isUpVoted)
-    ? upVotesBy.length + 1
+    ? (upVotesBy?.length || 0) + 1
     : (!displayUpVoted && isUpVoted)
-      ? Math.max(0, upVotesBy.length - 1)
-      : upVotesBy.length;
+      ? Math.max(0, (upVotesBy?.length || 0) - 1)
+      : upVotesBy?.length || 0;
 
   const handleVote = (voteType) => {
     if (!user) {
@@ -55,18 +55,18 @@ function CommentCard({ comment, threadId }) {
 
     // Apply optimistic update
     dispatch(addOptimisticUpdate({
-      id,
+      id: id || '',
       type: 'comment',
       isUpVoted: newUpVoted,
       isDownVoted: newDownVoted,
     }));
 
     // Dispatch the actual vote action
-    dispatch(voteComment({ threadId, commentId: id, voteType }))
+    dispatch(voteComment({ threadId, commentId: id || '', voteType }))
       .unwrap()
       .catch(() => {
         // If the vote fails, remove the optimistic update
-        dispatch(removeOptimisticUpdate({ id, type: 'comment' }));
+        dispatch(removeOptimisticUpdate({ id: id || '', type: 'comment' }));
       });
   };
 
@@ -80,12 +80,12 @@ function CommentCard({ comment, threadId }) {
         <div className="ml-3">
           <p className="font-semibold text-gray-800">{owner?.name}</p>
           <p className="text-xs text-gray-500">
-            {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+            {createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : 'Unknown time'}
           </p>
         </div>
       </div>
 
-      <p className="text-gray-700 mb-4 leading-relaxed pl-2 border-l-2 border-gray-100">{content}</p>
+      <p className="text-gray-700 mb-4 leading-relaxed pl-2 border-l-2 border-gray-100">{content || ''}</p>
 
       <div className="flex items-center text-gray-600 pt-2">
         <button
@@ -107,7 +107,7 @@ function CommentCard({ comment, threadId }) {
           data-testid="comment-downvote-button"
         >
           <span className="mr-1 text-sm">{displayDownVoted ? <FaThumbsDown /> : <FaRegThumbsDown />}</span>
-          <span className="text-sm">{downVotesBy.length}</span>
+          <span className="text-sm">{downVotesBy?.length || 0}</span>
         </button>
       </div>
     </div>

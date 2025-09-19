@@ -112,7 +112,15 @@ Cypress.Commands.add('setupLoggedInUser', (userType = 'validUser') => {
   cy.fixture('users.json').then((users) => {
     const user = users[userType];
     cy.window().then((window) => {
+      // Set both new and old keys for compatibility
+      window.localStorage.setItem('diskusi_forum_token', 'fake-jwt-token');
       window.localStorage.setItem('token', 'fake-jwt-token');
+      window.localStorage.setItem('diskusi_forum_user', JSON.stringify({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+      }));
       window.localStorage.setItem('user', JSON.stringify({
         id: user.id,
         name: user.name,
@@ -126,7 +134,7 @@ Cypress.Commands.add('setupLoggedInUser', (userType = 'validUser') => {
 // Command untuk setup intercept threads
 Cypress.Commands.add('interceptThreads', () => {
   cy.fixture('threads.json').then(() => {
-    cy.intercept('GET', '**/v1/threads', {
+    cy.intercept('GET', 'https://forum-api.dicoding.dev/v1/threads', {
       statusCode: 200,
       body: {
         status: 'success',
@@ -172,14 +180,14 @@ Cypress.Commands.add('interceptThreads', () => {
 
 // Command untuk setup intercept thread detail
 Cypress.Commands.add('interceptThreadDetail', () => {
-  // Intercept initial GET request
-  cy.intercept('GET', '**/v1/threads/thread-1', {
+  // Intercept initial GET request with correct pattern and data structure
+  cy.intercept('GET', 'https://forum-api.dicoding.dev/v1/threads/thread-1', {
     statusCode: 200,
     body: {
       status: 'success',
       message: 'success',
       data: {
-        thread: {
+        detailThread: {
           id: 'thread-1',
           title: 'Thread Title 1',
           body: 'Thread body with detailed content',

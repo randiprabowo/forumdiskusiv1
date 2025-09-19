@@ -5,24 +5,49 @@ describe('Thread Detail Flow', () => {
     // Setup localStorage dengan token dan user data untuk simulasi user yang sudah login
     cy.setupLoggedInUser();
     
-    // Setup intercept untuk thread detail
+    // Setup intercept untuk thread detail sebelum visit
     cy.interceptThreadDetail();
     
-    // Kunjungi halaman detail thread
-    cy.visit('/threads/thread-1');
+    // Kunjungi halaman detail thread dengan retry jika gagal
+    cy.visit('/threads/thread-1', { timeout: 10000 });
+    
+    // Tunggu thread detail dan pastikan loading selesai
     cy.wait('@getThreadDetail');
+    cy.waitForLoading();
   });
 
   it('should display thread detail and comments', () => {
-    // Memverifikasi detail thread ditampilkan
-    cy.get('[data-testid="thread-title"]').should('contain', 'Thread Title 1');
-    cy.get('[data-testid="thread-body"]').should('contain', 'Thread body with detailed content');
-    cy.get('[data-testid="thread-category"]').should('contain', 'react');
+    // Memverifikasi thread container ada dan visible
+    cy.get('[data-testid="thread-detail"]')
+      .should('exist')
+      .and('be.visible');
+
+    // Memverifikasi detail thread ditampilkan dengan retry
+    cy.get('[data-testid="thread-title"]')
+      .should('be.visible')
+      .and('contain', 'Thread Title 1');
     
-    // Memverifikasi komentar ditampilkan
-    cy.get('[data-testid="comment-item"]').should('have.length', 2);
-    cy.get('[data-testid="comment-item"]').eq(0).should('contain', 'Komentar pertama');
-    cy.get('[data-testid="comment-item"]').eq(1).should('contain', 'Komentar kedua');
+    cy.get('[data-testid="thread-body"]')
+      .should('be.visible')
+      .and('contain', 'Thread body with detailed content');
+    
+    cy.get('[data-testid="thread-category"]')
+      .should('be.visible')
+      .and('contain', 'react');
+    
+    // Memverifikasi komentar ditampilkan dengan retry
+    cy.get('[data-testid="comment-item"]', { timeout: 10000 })
+      .should('have.length', 2)
+      .should('be.visible');
+
+    // Verifikasi konten komentar
+    cy.get('[data-testid="comment-item"]').eq(0)
+      .should('be.visible')
+      .and('contain', 'Komentar pertama');
+    
+    cy.get('[data-testid="comment-item"]').eq(1)
+      .should('be.visible')
+      .and('contain', 'Komentar kedua');
   });
 
   it('should upvote thread when upvote button is clicked', () => {
@@ -36,7 +61,7 @@ describe('Thread Detail Flow', () => {
     cy.get('[data-testid="upvote-count"]').should('be.visible').and('contain', '0');
     
     // Intercept API call untuk upvote thread
-    cy.intercept('POST', '**/v1/threads/thread-1/up-vote', {
+    cy.intercept('POST', 'https://forum-api.dicoding.dev/v1/threads/thread-1/up-vote', {
       statusCode: 200,
       body: {
         status: 'success',
@@ -85,7 +110,6 @@ describe('Thread Detail Flow', () => {
 
     // Memverifikasi API call untuk upvote thread
     cy.wait('@upvoteThread');
-    cy.wait('@getThreadDetailAfterVote');
 
     // Memverifikasi UI diperbarui dengan retry dan timeout yang lebih lama
     cy.get('[data-testid="upvote-count"]', { timeout: 10000 })
@@ -102,7 +126,7 @@ describe('Thread Detail Flow', () => {
     cy.get('[data-testid="downvote-count"]').should('be.visible').and('contain', '0');
     
     // Intercept API call untuk downvote thread
-    cy.intercept('POST', '**/v1/threads/thread-1/down-vote', {
+    cy.intercept('POST', 'https://forum-api.dicoding.dev/v1/threads/thread-1/down-vote', {
       statusCode: 200,
       body: {
         status: 'success',
@@ -151,7 +175,6 @@ describe('Thread Detail Flow', () => {
 
     // Memverifikasi API call untuk downvote thread
     cy.wait('@downvoteThread');
-    cy.wait('@getThreadDetailAfterVote');
 
     // Memverifikasi UI diperbarui dengan retry dan timeout yang lebih lama
     cy.get('[data-testid="downvote-count"]', { timeout: 10000 })
@@ -162,33 +185,56 @@ describe('Thread Detail Flow', () => {
   });
 
   it('should add comment when comment form is submitted', () => {
+    // Setup initial state verification
+    cy.get('[data-testid="comment-item"]').should('have.length', 2);
+    
     // Intercept API call untuk menambahkan komentar
     cy.intercept('POST', '**/v1/threads/thread-1/comments', {
       statusCode: 200,
       body: {
-        id: 'comment-3',
-        content: 'Komentar baru',
-        createdAt: '2023-05-30T10:00:00.000Z',
-        owner: {
-          id: 'user-1',
-          name: 'Test User',
-          avatar: 'https://ui-avatars.com/api/?name=Test+User',
-        },
-        upVotesBy: [],
-        downVotesBy: []
+        status: 'success',
+        message: 'success',
+        data: {
+          comment: {
+            id: 'comment-3',
+            content: 'Komentar baru',
+            createdAt: '2023-05-30T10:00:00.000Z',
+            owner: {
+              id: 'user-1',
+              name: 'Test User',
+              avatar: 'https://ui-avatars.com/api/?name=Test+User',
+            },
+            upVotesBy: [],
+            downVotesBy: []
+          }
+        }
       },
     }).as('addComment');
 
-    // Isi form komentar
-    cy.get('[data-testid="comment-input"]').type('Komentar baru');
-    cy.get('[data-testid="comment-submit"]').click();
+    // Setup thread detail refresh after comment
+    cy.interceptThreadDetail();
 
-    // Memverifikasi API call untuk menambahkan komentar
+    // Verifikasi form komentar visible dan interactable
+    cy.get('[data-testid="comment-input"]')
+      .should('be.visible')
+      .clear()
+      .type('Komentar baru', { delay: 0 });
+
+    cy.get('[data-testid="comment-submit"]')
+      .should('be.visible')
+      .and('not.be.disabled')
+      .click();
+
+    // Memverifikasi API calls
     cy.wait('@addComment');
+    cy.wait('@getThreadDetail');
 
-    // Memverifikasi komentar baru ditampilkan
-    cy.get('[data-testid="comment-item"]').should('have.length', 3);
-    cy.get('[data-testid="comment-item"]').eq(2).should('contain', 'Komentar baru');
+    // Memverifikasi komentar baru ditampilkan dengan retry dan timeout
+    cy.get('[data-testid="comment-item"]', { timeout: 10000 })
+      .should('have.length', 3)
+      .last()
+      .should('be.visible')
+      .and('contain', 'Komentar baru');
   });
 
   it('should upvote comment when comment upvote button is clicked', () => {

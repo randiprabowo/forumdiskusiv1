@@ -27,32 +27,6 @@ describe('Threads Flow', () => {
     // Verify initial thread list is visible
     cy.get('[data-testid="thread-item"]').should('have.length', 2);
 
-    // Setup intercept untuk filtered threads setelah initial load
-    cy.intercept('GET', '**/v1/threads*', {
-      statusCode: 200,
-      body: {
-        status: 'success',
-        message: 'success',
-        data: {
-          threads: [{
-            id: 'thread-1',
-            title: 'Thread Title 1',
-            body: 'Thread body content',
-            category: 'react',
-            createdAt: '2023-05-30T10:00:00.000Z',
-            owner: {
-              id: 'user-1',
-              name: 'Test User',
-              avatar: 'https://ui-avatars.com/api/?name=Test+User'
-            },
-            upVotesBy: [],
-            downVotesBy: [],
-            totalComments: 0
-          }]
-        }
-      }
-    }).as('getFilteredThreads');
-
     // Klik filter kategori 'react' setelah memastikan elemen ada dan visible
     cy.get('[data-testid="category-filter"]')
       .should('be.visible')
@@ -60,8 +34,8 @@ describe('Threads Flow', () => {
       .should('be.visible')
       .click();
     
-    // Tunggu response filtered threads dengan timeout yang cukup
-    cy.wait('@getFilteredThreads', { timeout: 10000 });
+    // Tunggu sebentar untuk proses filtering frontend
+    cy.wait(500);
 
     // Memverifikasi hanya thread dengan kategori 'react' yang ditampilkan
     cy.get('[data-testid="thread-item"]', { timeout: 10000 }).should('have.length', 1);

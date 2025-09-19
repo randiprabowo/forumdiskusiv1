@@ -22,7 +22,9 @@ function ThreadDetailPage() {
   const [localComments, setLocalComments] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchThreadDetail(id));
+    if (id) {
+      dispatch(fetchThreadDetail(id));
+    }
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ function ThreadDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const newComment = await dispatch(createComment({ threadId: id, content: commentContent })).unwrap();
+      const newComment = await dispatch(createComment({ threadId: id || '', content: commentContent })).unwrap();
       setCommentContent('');
       // Optimistically update local comments for E2E expectations
       setLocalComments((prev) => [...prev, newComment]);
@@ -72,18 +74,18 @@ function ThreadDetailPage() {
 
     // Apply optimistic update
     dispatch(addOptimisticUpdate({
-      id: currentThread.id,
+      id: currentThread.id || '',
       type: 'thread',
       isUpVoted: newUpVoted,
       isDownVoted: newDownVoted,
     }));
 
     // Dispatch the actual vote action
-    dispatch(voteThread({ threadId: currentThread.id, voteType }))
+    dispatch(voteThread({ threadId: currentThread.id || '', voteType }))
       .unwrap()
       .catch(() => {
         // If the vote fails, remove the optimistic update
-        dispatch(removeOptimisticUpdate({ id: currentThread.id, type: 'thread' }));
+        dispatch(removeOptimisticUpdate({ id: currentThread.id || '', type: 'thread' }));
       });
   };
 
@@ -105,28 +107,28 @@ function ThreadDetailPage() {
     title, body, category, createdAt, owner, upVotesBy, downVotesBy, comments,
   } = currentThread;
 
-  const isUpVoted = user ? upVotesBy.includes(user.id) : false;
-  const isDownVoted = user ? downVotesBy.includes(user.id) : false;
+  const isUpVoted = user && upVotesBy ? upVotesBy.includes(user.id) : false;
+  const isDownVoted = user && downVotesBy ? downVotesBy.includes(user.id) : false;
 
   // Check for optimistic updates
   const optimisticUpdate = optimisticUpdates.find(
-    (update) => update.id === currentThread.id && update.type === 'thread',
+    (update) => update.id === (currentThread.id || '') && update.type === 'thread',
   );
 
   const displayUpVoted = optimisticUpdate ? optimisticUpdate.isUpVoted : isUpVoted;
   const displayDownVoted = optimisticUpdate ? optimisticUpdate.isDownVoted : isDownVoted;
 
   const displayedUpvoteCount = (displayUpVoted && !isUpVoted)
-    ? upVotesBy.length + 1
+    ? (upVotesBy?.length || 0) + 1
     : (!displayUpVoted && isUpVoted)
-      ? Math.max(0, upVotesBy.length - 1)
-      : upVotesBy.length;
+      ? Math.max(0, (upVotesBy?.length || 0) - 1)
+      : upVotesBy?.length || 0;
 
   const displayedDownvoteCount = (displayDownVoted && !isDownVoted)
-    ? downVotesBy.length + 1
+    ? (downVotesBy?.length || 0) + 1
     : (!displayDownVoted && isDownVoted)
-      ? Math.max(0, downVotesBy.length - 1)
-      : downVotesBy.length;
+      ? Math.max(0, (downVotesBy?.length || 0) - 1)
+      : downVotesBy?.length || 0;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl" data-testid="thread-detail">
@@ -139,12 +141,12 @@ function ThreadDetailPage() {
           <div className="ml-4">
             <p className="font-semibold text-lg text-gray-800">{owner?.name}</p>
             <p className="text-sm text-gray-500">
-              {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+              {createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : 'Unknown time'}
             </p>
           </div>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold mb-3 text-gray-800" data-testid="thread-title">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-3 text-gray-800" data-testid="thread-title">{title || 'Untitled'}</h1>
         {category && (
           <span className="inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm px-4 py-1 rounded-full mb-6 shadow-sm" data-testid="thread-category">
             #{category}
@@ -152,7 +154,7 @@ function ThreadDetailPage() {
         )}
 
         <div className="prose max-w-none mb-8 text-gray-700 leading-relaxed" data-testid="thread-body">
-          <p className="whitespace-pre-line">{body}</p>
+          <p className="whitespace-pre-line">{body || ''}</p>
         </div>
 
         <div className="flex flex-wrap items-center text-gray-600 pt-4 border-t border-gray-100">
@@ -183,7 +185,7 @@ function ThreadDetailPage() {
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8">
         <h2 className="text-xl font-bold mb-6 text-gray-800 flex items-center">
           <FaRegComment className="mr-2 text-blue-600 text-base" />
-          Comments <span className="ml-2 text-blue-600">({comments.length})</span>
+          Comments <span className="ml-2 text-blue-600">({comments?.length || 0})</span>
         </h2>
 
         {isAuthenticated ? (
@@ -227,15 +229,15 @@ function ThreadDetailPage() {
           </div>
         )}
 
-        {comments.length === 0 ? (
+        {(comments?.length || 0) === 0 ? (
           <div className="bg-gray-50 rounded-xl p-6 text-center mb-4">
             <FaRegComment className="mx-auto text-2xl text-gray-300 mb-2" />
             <p className="text-gray-500 text-base">No comments yet. Be the first to share your thoughts!</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {(localComments.length ? localComments : comments).map((comment) => (
-              <CommentCard key={comment.id} comment={comment} threadId={id} />
+            {(localComments.length ? localComments : (comments || [])).map((comment) => (
+              <CommentCard key={comment.id || ''} comment={comment} threadId={id || ''} />
             ))}
           </div>
         )}

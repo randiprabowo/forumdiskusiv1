@@ -17,12 +17,12 @@ function ThreadCard({ thread }) {
     id, title, body, category, createdAt, owner, upVotesBy, downVotesBy, totalComments,
   } = thread;
 
-  const isUpVoted = user ? upVotesBy.includes(user.id) : false;
-  const isDownVoted = user ? downVotesBy.includes(user.id) : false;
+  const isUpVoted = user && upVotesBy ? upVotesBy.includes(user.id) : false;
+  const isDownVoted = user && downVotesBy ? downVotesBy.includes(user.id) : false;
 
   // Check for optimistic updates
   const optimisticUpdate = optimisticUpdates.find(
-    (update) => update.id === id && update.type === 'thread',
+    (update) => update.id === (id || '') && update.type === 'thread',
   );
 
   const displayUpVoted = optimisticUpdate ? optimisticUpdate.isUpVoted : isUpVoted;
@@ -52,28 +52,28 @@ function ThreadCard({ thread }) {
 
     // Apply optimistic update
     dispatch(addOptimisticUpdate({
-      id,
+      id: id || '',
       type: 'thread',
       isUpVoted: newUpVoted,
       isDownVoted: newDownVoted,
     }));
 
     // Dispatch the actual vote action
-    const dispatched = dispatch(voteThread({ threadId: id, voteType }));
+    const dispatched = dispatch(voteThread({ threadId: id || '', voteType }));
     // Support both real thunk result (with unwrap) and mocked dispatch (plain function)
     if (dispatched && typeof dispatched.unwrap === 'function') {
       dispatched.unwrap().catch(() => {
-        dispatch(removeOptimisticUpdate({ id, type: 'thread' }));
+        dispatch(removeOptimisticUpdate({ id: id || '', type: 'thread' }));
       });
     } else if (dispatched && typeof dispatched.then === 'function') {
       dispatched.catch(() => {
-        dispatch(removeOptimisticUpdate({ id, type: 'thread' }));
+        dispatch(removeOptimisticUpdate({ id: id || '', type: 'thread' }));
       });
     }
   };
 
   // Format the body to show only a preview
-  const bodyPreview = body.length > 150 ? `${body.substring(0, 150)}...` : body;
+  const bodyPreview = body && body.length > 150 ? `${body.substring(0, 150)}...` : (body || '');
 
   return (
     <div className="bg-white rounded-xl shadow-md p-5 mb-6 hover:shadow-xl transition-all duration-300 border-l-4 border-blue-500 transform hover:-translate-y-1">
@@ -85,13 +85,13 @@ function ThreadCard({ thread }) {
         <div className="ml-3">
           <p className="font-semibold text-gray-800">{owner?.name}</p>
           <p className="text-xs text-gray-500">
-            {formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
+            {createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true }) : 'Unknown time'}
           </p>
         </div>
       </div>
 
-      <Link to={`/threads/${id}`} className="block group">
-        <h2 className="text-xl font-bold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">{title}</h2>
+      <Link to={`/threads/${id || ''}`} className="block group">
+        <h2 className="text-xl font-bold mb-2 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">{title || 'Untitled'}</h2>
         
         {category && (
           <span className="inline-block bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs px-3 py-1 rounded-full mb-3 shadow-sm">
@@ -111,7 +111,7 @@ function ThreadCard({ thread }) {
           data-testid="upvote-button"
         >
           {displayUpVoted ? <FaThumbsUp className="mr-1" /> : <FaRegThumbsUp className="mr-1" />}
-          <span data-testid="upvote-count">{upVotesBy.length}</span>
+          <span data-testid="upvote-count">{upVotesBy?.length || 0}</span>
         </button>
         <button
           type="button"
@@ -121,15 +121,15 @@ function ThreadCard({ thread }) {
           data-testid="downvote-button"
         >
           {displayDownVoted ? <FaThumbsDown className="mr-1" /> : <FaRegThumbsDown className="mr-1" />}
-          <span data-testid="downvote-count">{downVotesBy.length}</span>
+          <span data-testid="downvote-count">{downVotesBy?.length || 0}</span>
         </button>
         <button
           type="button"
-          onClick={() => navigate(`/threads/${id}`)}
+          onClick={() => navigate(`/threads/${id || ''}`)}
           className="flex items-center hover:text-blue-600 cursor-pointer"
         >
           <FaRegComment className="mr-1" />
-          <span>{totalComments}</span>
+          <span>{totalComments || 0}</span>
         </button>
       </div>
     </div>
