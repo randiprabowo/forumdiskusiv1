@@ -178,7 +178,7 @@ Cypress.Commands.add('interceptThreadDetail', () => {
       status: 'success',
       message: 'success',
       data: {
-        detailThread: {
+        thread: {
           id: 'thread-1',
           title: 'Thread Title 1',
           body: 'Thread body with detailed content',

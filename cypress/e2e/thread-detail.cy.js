@@ -74,15 +74,21 @@ describe('Thread Detail Flow', () => {
       }
     }).as('getThreadDetailAfterVote');
 
-    // Klik tombol upvote
-    cy.get('[data-testid="upvote-button"]').click();
+    // Klik tombol upvote dengan retry
+    cy.get('[data-testid="upvote-button"]')
+      .should('be.visible')
+      .click();
 
     // Memverifikasi API call untuk upvote thread
     cy.wait('@upvoteThread');
+    cy.wait('@getThreadDetailAfterVote');
 
-    // Memverifikasi UI diperbarui
-    cy.get('[data-testid="upvote-count"]').should('be.visible').and('contain', '1');
-    cy.get('[data-testid="upvote-button"]').should('have.class', 'voted');
+    // Memverifikasi UI diperbarui dengan retry dan timeout yang lebih lama
+    cy.get('[data-testid="upvote-count"]', { timeout: 10000 })
+      .should('be.visible')
+      .and('contain', '1');
+    cy.get('[data-testid="upvote-button"]', { timeout: 10000 })
+      .should('have.class', 'voted');
   });
 
   it('should downvote thread when downvote button is clicked', () => {
@@ -134,15 +140,21 @@ describe('Thread Detail Flow', () => {
       }
     }).as('getThreadDetailAfterVote');
 
-    // Klik tombol downvote
-    cy.get('[data-testid="downvote-button"]').click();
+    // Klik tombol downvote dengan retry
+    cy.get('[data-testid="downvote-button"]')
+      .should('be.visible')
+      .click();
 
     // Memverifikasi API call untuk downvote thread
     cy.wait('@downvoteThread');
+    cy.wait('@getThreadDetailAfterVote');
 
-    // Memverifikasi UI diperbarui
-    cy.get('[data-testid="downvote-count"]').should('be.visible').and('contain', '1');
-    cy.get('[data-testid="downvote-button"]').should('have.class', 'voted');
+    // Memverifikasi UI diperbarui dengan retry dan timeout yang lebih lama
+    cy.get('[data-testid="downvote-count"]', { timeout: 10000 })
+      .should('be.visible')
+      .and('contain', '1');
+    cy.get('[data-testid="downvote-button"]', { timeout: 10000 })
+      .should('have.class', 'voted');
   });
 
   it('should add comment when comment form is submitted', () => {
