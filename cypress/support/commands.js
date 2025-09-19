@@ -172,6 +172,7 @@ Cypress.Commands.add('interceptThreads', () => {
 
 // Command untuk setup intercept thread detail
 Cypress.Commands.add('interceptThreadDetail', () => {
+  // Intercept initial GET request
   cy.intercept('GET', '**/v1/threads/thread-1', {
     statusCode: 200,
     body: {

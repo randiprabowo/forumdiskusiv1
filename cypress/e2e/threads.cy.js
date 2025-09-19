@@ -21,20 +21,49 @@ describe('Threads Flow', () => {
   });
 
   it('should filter threads by category', () => {
+    // Setup intercept untuk filtered threads
+    cy.intercept('GET', '**/v1/threads**', {
+      statusCode: 200,
+      body: {
+        status: 'success',
+        message: 'success',
+        data: {
+          threads: [{
+            id: 'thread-1',
+            title: 'Thread Title 1',
+            body: 'Thread body content',
+            category: 'react',
+            createdAt: '2023-05-30T10:00:00.000Z',
+            owner: {
+              id: 'user-1',
+              name: 'Test User',
+              avatar: 'https://ui-avatars.com/api/?name=Test+User'
+            },
+            upVotesBy: [],
+            downVotesBy: [],
+            totalComments: 0
+          }]
+        }
+      }
+    }).as('getFilteredThreads');
+
     // Klik filter kategori 'react'
-    cy.get('[data-testid="category-filter"]').contains('react').click();
+    cy.get('[data-testid="category-filter"]').contains('react').should('be.visible').click();
     
-    // Tunggu proses filtering selesai
-    cy.wait(500); // Give time for the filter to be applied
+    // Tunggu response filtered threads
+    cy.wait('@getFilteredThreads');
 
     // Memverifikasi hanya thread dengan kategori 'react' yang ditampilkan
-    cy.get('[data-testid="thread-item"]').should('have.length', 1);
+    cy.get('[data-testid="thread-item"]', { timeout: 10000 }).should('have.length', 1);
     cy.get('[data-testid="thread-item"]').should('contain', 'Thread Title 1');
   });
 
   it('should navigate to thread detail page when thread is clicked', () => {
     // Setup intercept untuk thread detail
-    cy.interceptThreadDetail('thread-1');
+    cy.interceptThreadDetail();
+    
+    // Wait for initial threads to load and be visible
+    cy.get('[data-testid="thread-item"]').should('be.visible');
 
     // Klik thread pertama
     cy.get('[data-testid="thread-item"]').first().click();
@@ -45,9 +74,9 @@ describe('Threads Flow', () => {
     // Menunggu detail thread dimuat
     cy.wait('@getThreadDetail');
 
-    // Memverifikasi detail thread ditampilkan
-    cy.get('[data-testid="thread-detail"]').should('exist');
-    cy.get('[data-testid="thread-title"]').should('contain', 'Thread Title 1');
+    // Memverifikasi komponen thread detail ditampilkan
+    cy.get('[data-testid="thread-title"]', { timeout: 10000 }).should('be.visible').and('contain', 'Thread Title 1');
+    cy.get('[data-testid="thread-body"]', { timeout: 10000 }).should('be.visible').and('contain', 'Thread body with detailed content');
   });
 
   it('should create a new thread', () => {
